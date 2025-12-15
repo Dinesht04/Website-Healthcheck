@@ -19,10 +19,14 @@ type Response struct {
 	Time    time.Duration
 }
 
-func CheckHealth(url string) (*Response, error) {
+func CheckHealth(url string) *Response {
 	resp, timeTaken, err := health.GetWebsiteHealth(url)
 	if err != nil {
-		return nil, err
+		return &Response{
+			Code:    0,
+			Message: url + " is Down",
+			Time:    timeTaken,
+		}
 	}
 	response := &Response{}
 	response.Code = resp.StatusCode
@@ -32,14 +36,14 @@ func CheckHealth(url string) (*Response, error) {
 	} else {
 		response.Message = http.StatusText(resp.StatusCode)
 	}
-	return response, err
+	return response
 }
 
 func main() {
 	cmd := &cli.Command{
 		Name:      "Website Health Checker",
 		Usage:     "Check a Website's health",
-		UsageText: "go run main.go check [Your Website's url]",
+		UsageText: "go run main.go check https://youtube.com",
 		Commands: []*cli.Command{
 			{
 				Name:    "check",
@@ -47,11 +51,7 @@ func main() {
 				Usage:   "Enter Website's URL",
 				Action: func(ctx context.Context, c *cli.Command) error {
 					url := c.Args().Get(0)
-					resp, err := CheckHealth(url)
-					if err != nil {
-						return fmt.Errorf("Error - %w", err)
-					}
-
+					resp := CheckHealth(url)
 					fmt.Printf("Status Code: %d,\n%s,\nTime Taken: %dms\n", resp.Code, resp.Message, resp.Time.Milliseconds())
 					return nil
 
