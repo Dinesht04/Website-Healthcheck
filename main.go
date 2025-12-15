@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"time"
 
 	"github.com/dinesht04/health-check/health"
@@ -51,7 +52,7 @@ func main() {
 						return fmt.Errorf("Error - %w", err)
 					}
 
-					fmt.Printf("Status Code: %d,\n %s,\n Time Taken: %dms \n", resp.Code, resp.Message, resp.Time.Milliseconds())
+					fmt.Printf("Status Code: %d,\n%s,\nTime Taken: %dms\n", resp.Code, resp.Message, resp.Time.Milliseconds())
 					return nil
 
 				},
@@ -61,6 +62,12 @@ func main() {
 				Aliases: []string{"t"},
 				Usage:   "Test the tooling",
 				Action: func(ctx context.Context, c *cli.Command) error {
+					cmd := exec.Command("go", "test", "-v")
+					out, err := cmd.Output()
+					if err != nil {
+						return fmt.Errorf("Error while running tests: %w", err)
+					}
+					fmt.Println(string(out))
 					return nil
 				},
 			},
