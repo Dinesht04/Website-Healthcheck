@@ -36,18 +36,34 @@ func CheckHealth(url string) (*Response, error) {
 
 func main() {
 	cmd := &cli.Command{
-		Name:  "check",
-		Usage: "Check Url's health",
-		Action: func(ctx context.Context, c *cli.Command) error {
-			url := c.Args().Get(0)
-			resp, err := CheckHealth(url)
-			if err != nil {
-				fmt.Println("Encountered Error: ", err)
-				return nil
-			}
+		Name:      "Website Health Checker",
+		Usage:     "Check a Website's health",
+		UsageText: "go run main.go check [Your Website's url]",
+		Commands: []*cli.Command{
+			{
+				Name:    "check",
+				Aliases: []string{"c"},
+				Usage:   "Enter Website's URL",
+				Action: func(ctx context.Context, c *cli.Command) error {
+					url := c.Args().Get(0)
+					resp, err := CheckHealth(url)
+					if err != nil {
+						return fmt.Errorf("Error - %w", err)
+					}
 
-			fmt.Printf("Status Code: %d,\n %s,\n Time Taken: %dms \n", resp.Code, resp.Message, resp.Time.Milliseconds())
-			return nil
+					fmt.Printf("Status Code: %d,\n %s,\n Time Taken: %dms \n", resp.Code, resp.Message, resp.Time.Milliseconds())
+					return nil
+
+				},
+			},
+			{
+				Name:    "test",
+				Aliases: []string{"t"},
+				Usage:   "Test the tooling",
+				Action: func(ctx context.Context, c *cli.Command) error {
+					return nil
+				},
+			},
 		},
 	}
 
